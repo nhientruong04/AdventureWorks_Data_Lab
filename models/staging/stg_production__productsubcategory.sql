@@ -3,4 +3,4 @@ select
     cast(ProductSubCategoryID as int) as ProductSubCategoryID,
     cast(ProductCategoryID as int) as ProductCategoryID,
     cast(Name as varchar) as SubCategory
-from Production.ProductCategory
+from Production.ProductSubcategory
