@@ -38,6 +38,7 @@ models:
       dims:
         +materialized: table
       facts:
-        +materialized: incremental
+        +materialized: table
     intermediate:
-      +materialized: ephemeral
+      +materialized: view
+      +schema: intermediate
