@@ -1,34 +1,30 @@
-WITH numbers AS (
-    SELECT TOP (DATEDIFF(DAY, '1990-01-01', '2050-12-31') + 1)
-        ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) - 1 AS n
-    FROM sys.all_objects AS a
-    CROSS JOIN sys.all_objects AS b
+-- Step 1: Generate the date spine
+WITH date_spine as (
+
+    {{ dbt_utils.date_spine(
+        datepart="day",
+        start_date="cast('1990-01-01' as date)",
+        end_date="cast('2050-12-31' as date)"
+    ) }}
+
 ),
 
--- Step 2: Convert to continuous date range
-date_spine AS (
-    SELECT DATEADD(DAY, n, CAST('1990-01-01' AS DATE)) AS date_day
-    FROM numbers
-),
-
--- Step 3: Add useful date attributes
-final AS (
+-- Step 2: Add useful date components
+final as (
     SELECT
-        CAST(FORMAT(date_day, 'yyyyMMdd') AS INT) AS DateKey,
-        CAST(date_day AS DATE) AS [Date],
-        DATEPART(YEAR, date_day) AS [Year],
-        DATEPART(QUARTER, date_day) AS [Quarter],
-        DATEPART(MONTH, date_day) AS [Month],
-        DATEPART(DAY, date_day) AS [Day],
+        CAST(format_date('%Y%m%d', date_day) as int64) as DateKey,
+        date_day as Date,
+        EXTRACT(year FROM date_day) as Year,
+        EXTRACT(quarter FROM date_day) as Quarter,
+        EXTRACT(month FROM date_day) as Month,
+        EXTRACT(week FROM date_day) as Week,
         CASE
-            WHEN MONTH(date_day) IN (12, 1, 2) THEN 'Winter'
-            WHEN MONTH(date_day) IN (3, 4, 5) THEN 'Spring'
-            WHEN MONTH(date_day) IN (6, 7, 8) THEN 'Summer'
+            WHEN EXTRACT(month FROM date_day) IN (12, 1, 2) THEN 'Winter'
+            WHEN EXTRACT(month FROM date_day) IN (3, 4, 5) THEN 'Spring'
+            WHEN EXTRACT(month FROM date_day) IN (6, 7, 8) THEN 'Summer'
             ELSE 'Autumn'
-        END AS [Season]
+        END as Season
     FROM date_spine
 )
 
--- Step 4: Select the final result
-SELECT *
-FROM final;
+SELECT * FROM final
