@@ -1,32 +1,30 @@
-with
+WITH
 category_subcategory as (
-    select
+    SELECT
         subcat.*,
         cat.Category
-    from {{ ref('stg_production__productsubcategory') }} as subcat
-    left join {{ ref('stg_production__productcategory') }} as cat
-        on subcat.ProductCategoryID = cat.ProductCategoryID
+    FROM {{ ref('stg_production__productsubcategory') }} as subcat
+    LEFT JOIN {{ ref('stg_production__productcategory') }} as cat
+        ON subcat.ProductCategoryID = cat.ProductCategoryID
 ),
 
 model_join as (
-    select
+    SELECT
         p.*,
         pm.ProductModel
-    from {{ ref('stg_production__product') }} as p
-    left join {{ ref('stg_production__productmodel') }} as pm
-        on p.ProductModelID = pm.ProductModelID
+    FROM {{ ref('stg_production__product') }} as p
+    LEFT JOIN {{ ref('stg_production__productmodel') }} as pm
+        ON p.ProductModelID = pm.ProductModelID
 )
 
-select
+SELECT
     mj.ProductID,
     mj.ProductName,
-    mj.MakeFlag,
-    mj.FinishedGoodsFlag,
     mj.ProductModel,
     mj.Color,
     mj.ProductSize,
     cs.Category,
     cs.SubCategory
-from model_join as mj
-left join category_subcategory as cs
-    on mj.ProductSubCategoryID = cs.ProductSubCategoryID
+FROM model_join as mj
+LEFT JOIN category_subcategory as cs
+    ON mj.ProductSubCategoryID = cs.ProductSubCategoryID
