@@ -1,15 +1,13 @@
--- Step 1: Generate the date spine
 WITH date_spine as (
 
     {{ dbt_utils.date_spine(
         datepart="day",
-        start_date="cast('1990-01-01' as date)",
-        end_date="cast('2050-12-31' as date)"
+        start_date="DATE('1990-01-01')",
+        end_date="DATE('2050-12-31')"
     ) }}
 
 ),
 
--- Step 2: Add useful date components
 final as (
     SELECT
         CAST(format_date('%Y%m%d', date_day) as int64) as DateKey,
