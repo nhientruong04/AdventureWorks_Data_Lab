@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: stg_sales__salesorderheader
+    columns:
+      - name: SalesOrderID
+        description: "Unique order identifier"
+        tests:
+          - not_null
+          - unique
