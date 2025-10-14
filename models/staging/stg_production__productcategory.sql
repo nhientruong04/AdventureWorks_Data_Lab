@@ -1,5 +1,5 @@
 {{ config(materialized='ephemeral') }}
-select
-    cast(ProductCategoryID as int) as ProductCategoryID,
-    cast(Name as varchar) as Category
-from Production.ProductCategory
+SELECT
+    CAST(ProductCategoryID as INT) as ProductCategoryID,
+    CAST(Name as STRING) as Category
+FROM Production.ProductCategory

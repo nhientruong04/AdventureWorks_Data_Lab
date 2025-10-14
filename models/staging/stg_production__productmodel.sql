@@ -1,4 +1,4 @@
-select
-    cast(ProductModelID as int) as ProductModelID,
-    cast(Name as varchar) as ProductModel
-from Production.ProductModel
+SELECT
+    CAST(ProductModelID as INT) as ProductModelID,
+    CAST(Name as STRING) as ProductModel
+FROM Production.ProductModel

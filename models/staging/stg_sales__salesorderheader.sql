@@ -1,6 +1,6 @@
-select
-    cast(SalesOrderID as int) as SalesOrderID,
-    cast(OrderDate as date) as OrderDate,
-    cast(OnlineOrderFlag as int) as OnlineOrderFlag,
-    cast(TerritoryID as int) as TerritoryID
-from Sales.SalesOrderHeader
+SELECT
+    CAST(SalesOrderID as INT) as SalesOrderID,
+    CAST(OrderDate as DATE) as OrderDate,
+    CAST(OnlineOrderFlag as INT) as OnlineOrderFlag,
+    CAST(TerritoryID as INT) as TerritoryID
+FROM Sales.SalesOrderHeader

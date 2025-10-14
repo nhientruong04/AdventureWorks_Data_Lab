@@ -1,8 +1,7 @@
-select
-    cast(SalesOrderID as int) as SalesOrderID,
-    cast(ProductID as int) as ProductID,
-    cast(SalesOrderDetailID as int) as SalesOrderDetailID,
-    cast(OrderQty as int) as OrderQty,
-    cast(UnitPrice as float) as UnitPrice,
-    cast(UnitPriceDiscount as float) as UnitPriceDiscount
-from Sales.SalesOrderDetail
+SELECT
+    CAST(SalesOrderID as INT) as SalesOrderID,
+    CAST(ProductID as INT) as ProductID,
+    CAST(OrderQty as INT) as OrderQty,
+    CAST(UnitPrice as FLOAT64) as UnitPrice,
+    CAST(UnitPriceDiscount as FLOAT64) as UnitPriceDiscount
+FROM Sales.SalesOrderDetail

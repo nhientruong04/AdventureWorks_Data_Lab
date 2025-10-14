@@ -1,6 +1,6 @@
 {{ config(materialized='ephemeral') }}
-select
-    cast(ProductSubCategoryID as int) as ProductSubCategoryID,
-    cast(ProductCategoryID as int) as ProductCategoryID,
-    cast(Name as varchar) as SubCategory
-from Production.ProductSubcategory
+SELECT
+    CAST(ProductSubCategoryID as INT) as ProductSubCategoryID,
+    CAST(ProductCategoryID as INT) as ProductCategoryID,
+    CAST(Name as STRING) as SubCategory
+FROM Production.ProductSubcategory

@@ -1,10 +1,8 @@
-select
-    cast(ProductID as int) as ProductID,
-    cast(Name as varchar) as ProductName,
-    cast(MakeFlag as int) as MakeFlag,
-    cast(FinishedGoodsFlag as int) as FinishedGoodsFlag,
-    cast(Color as varchar) as Color,
-    cast("Size" as varchar) as ProductSize,
-    cast(ProductSubCategoryID as int) ProductSubCategoryID,
-    cast(ProductModelID as int) ProductModelID
-from Production.Product
+SELECT
+    CAST(ProductID as INT) as ProductID,
+    CAST(Name as STRING) as ProductName,
+    CAST(Color as STRING) as Color,
+    CAST("Size" as STRING) as ProductSize,
+    CAST(ProductSubCategoryID as INT) ProductSubCategoryID,
+    CAST(ProductModelID as INT) ProductModelID
+FROM Production.Product

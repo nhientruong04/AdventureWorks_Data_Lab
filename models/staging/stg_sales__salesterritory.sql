@@ -1,6 +1,6 @@
 {{ config(materialized='ephemeral') }}
-select
-    cast(TerritoryID as int) as TerritoryID,
-    cast(Name as varchar) as TerritoryName,
-    cast("Group" as varchar) as TerritoryGroup
-from Sales.SalesTerritory
+SELECT
+    CAST(TerritoryID as INT) as TerritoryID,
+    CAST(Name as STRING) as TerritoryName,
+    CAST("Group" as STRING) as TerritoryGroup
+FROM Sales.SalesTerritory
