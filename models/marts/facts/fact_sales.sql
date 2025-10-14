@@ -1,23 +1,21 @@
-with
+WITH
 sales_filtered as (
-    select
-        {{ select_except(ref('int_sales__join'), ['TerritoryID', 'TerritoryName', 'TerritoryGroup', 'OnlineOrderFlag']) }}
-    from {{ ref('int_sales__join') }}
+    SELECT
+        * EXCEPT (TerritoryID, TerritoryName, TerritoryGroup, OnlineOrderFlag)
+    FROM {{ ref('int_sales__join') }}
 ),
 
-date_join as (
-    select
+final as (
+    SELECT
         SalesOrderID,
         ProductID,
-        SalesOrderDetailID,
         OrderQty,
         UnitPrice,
-        UnitPriceDiscount,
         d.DateKey as SalesDateKey
-    from sales_filtered
-    left join {{ ref('dim_date') }} as d
-        on cast(sales_filtered.OrderDate as date) = d.Date
+    FROM sales_filtered
+    LEFT JOIN {{ ref('dim_date') }} as d
+        ON CAST(sales_filtered.OrderDate as DATE) = d.Date
 )
 
-select *
-from date_join
+SELECT *
+FROM final
