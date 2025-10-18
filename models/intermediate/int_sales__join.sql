@@ -1,14 +1,13 @@
 SELECT
     sales_details.*,
-    hj.OrderDate,
-    hj.OnlineOrderFlag,
-    hj.TerritoryID,
-    hj.TerritoryName,
-    hj.TerritoryGroup
+    sh.* EXCEPT(SalesOrderID)
 FROM {{ ref('stg_sales__salesorderdetail') }} as sales_details
-LEFT JOIN {{ ref('int_sales__salesheader_join') }} as hj
-    ON sales_details.SalesOrderID = hj.SalesOrderID
+LEFT JOIN {{ ref('stg_sales__salesorderheader') }} as sh
+    ON sales_details.SalesOrderID = sh.SalesOrderID
+
 {% if target.name == 'dev' %}
-ORDER BY hj.OrderDate
+
+ORDER BY sh.OrderDate
 LIMIT 10000
+
 {% endif %}
