@@ -8,4 +8,4 @@ FROM Sales.SalesOrderDetail
 WHERE OrderQty IS NULL
     OR UnitPrice IS NULL
     OR LineTotal IS NULL
-
+    OR LineTotal = 0
