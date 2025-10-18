@@ -1,10 +1,55 @@
 version: 2
 
-models:
-  - name: stg_sales__salesorderheader
-    columns:
-      - name: SalesOrderID
-        description: "Unique order identifier"
+sources:
+  - name: Sales
+    tables:
+      - name: SalesOrderHeader
         tests:
-          - not_null
-          - unique
+          - not_null:
+              column_name: SalesOrderID
+          - unique:
+              column_name: SalesOrderID
+      - name: SalesOrderDetail
+        tests:
+          - not_null:
+              column_name: SalesOrderID
+          - relationships:
+              column_name: SalesOrderID
+              arguments:
+                to: source('Sales', 'SalesOrderHeader')
+                field: SalesOrderID
+          - relationships:
+              column_name: ProductID
+              arguments:
+                to: source('Production', 'Product')
+                field: ProductID
+      - name: SalesTerritory
+        tests:
+          - not_null:
+              column_name: TerritoryID
+          - unique:
+              column_name: TerritoryID
+  - name: Production
+    tables:
+      - name: Product
+        tests:
+          - not_null:
+              column_name: ProductID
+          - unique:
+              column_name: ProductID
+          - relationships:
+              column_name: ProductSubCategoryID
+              arguments:
+                to: source('Product', 'ProductSubcategory')
+                field: ProductSubCategoryID
+      - name: ProductSubcategory
+        tests:
+          - not_null:
+              column_name: ProductSubCategoryID
+          - unique:
+              column_name: ProductSubCategoryID
+          - relationships:
+              column_name: ProductCategoryID
+              arguments:
+                to: source('Product', 'ProductCategory')
+                field: ProductCategoryID
