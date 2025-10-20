@@ -1,0 +1,7 @@
+pandas
+mlxtend
+google-cloud-bigquery
+loguru
+db-dtypes
+pandas-gbq
+google-cloud-bigquery-storage
