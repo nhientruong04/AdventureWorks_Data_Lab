@@ -8,3 +8,9 @@ models:
         tests:
           - not_null
           - unique
+  - name: dim_date
+    columns:
+      - name: DateKey
+        tests:
+          - not_null
+          - unique
