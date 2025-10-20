@@ -1,6 +1,14 @@
+{{
+    config(
+        unique_key=["ProductID", "SalesOrderID"],
+        cluster_by=["ProductID", "SalesOrderID"]
+    )
+}}
 SELECT
-    orders.*,
-    d.DateKey as SalesDateKey
-FROM {{ ref('int_sales__join') }} as orders
-LEFT JOIN {{ ref('dim_date') }} as d
-    ON CAST(orders.OrderDate as DATE) = d.Date
+    * EXCEPT (OrderDate, ModifiedDate),
+    {{ convert_datekey('ModifiedDate') }} as ModifiedDateKey,
+    {{ convert_datekey('OrderDate') }} as OrderDateKey
+FROM {{ ref('int_sales__join') }}
+{% if is_incremental() %}
+    WHERE ModifiedDate > (SELECT MAX(ModifiedDate) FROM {{ this }})
+{% endif %}
