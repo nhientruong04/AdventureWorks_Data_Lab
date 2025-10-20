@@ -40,7 +40,7 @@ sources:
           - relationships:
               column_name: ProductSubCategoryID
               arguments:
-                to: source('Product', 'ProductSubcategory')
+                to: source('Production', 'ProductSubcategory')
                 field: ProductSubCategoryID
       - name: ProductSubcategory
         tests:
@@ -51,5 +51,5 @@ sources:
           - relationships:
               column_name: ProductCategoryID
               arguments:
-                to: source('Product', 'ProductCategory')
+                to: source('Production', 'ProductCategory')
                 field: ProductCategoryID
