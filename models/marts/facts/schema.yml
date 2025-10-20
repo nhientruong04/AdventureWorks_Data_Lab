@@ -24,3 +24,8 @@ models:
           arguments:
             min_value: 0
             inclusive: true
+      - relationships:
+          column_name: OrderDateKey
+          arguments:
+            to: ref('dim_date')
+            field: DateKey
