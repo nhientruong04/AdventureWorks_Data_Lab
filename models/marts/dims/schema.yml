@@ -14,3 +14,10 @@ models:
         tests:
           - not_null
           - unique
+  - name: dim_territory
+    columns:
+      - name: TerritoryID
+        tests:
+          - relationships:
+              to: source('Sales', 'SalesTerritory')
+              field: TerritoryID
