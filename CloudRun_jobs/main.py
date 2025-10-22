@@ -83,7 +83,13 @@ def main():
         logger.info(f"Retrieved {len(df)} transactions")
 
     # should discuss more about thresholds
-    min_sup = 0.015 if len(df) >= 1000 else 0.15
+    min_sup = 0.05
+    if len(df) <= 1000:
+        min_sup = 0.15 - 0.02 * int(len(df)/250)
+    elif len(df) < 2000:
+        min_sup = 0.025 - 0.0025 * int(len(df)/1000)
+    else:
+        min_sup = 0.02
 
     te = TransactionEncoder()
     te_ary = te.fit(df["products"]).transform(df["products"])
@@ -102,9 +108,17 @@ def main():
 
     result = rules.iloc[:, :7].copy()
 
-    if len(result) > 400:
+    # get only single item set
+    single_condition = (
+        result["antecedents"].apply(len) == 1
+    ) & (
+        result["consequents"].apply(len) == 1
+    )
+    result = result[single_condition]
+
+    if len(result) > 100:
         result = result.sort_values(by=["support", "lift"], ascending=[
-                                    False, False]).head(400)
+                                    False, False]).head(100)
 
     result["territory_id"] = territory_id
     result["territory_id"] = result["territory_id"].astype("Int64")
@@ -116,15 +130,20 @@ def main():
     result["rule_hash"] = result.apply(hash_rule, axis=1)
 
     table_id = f"{project_id}.{dataset}_analytics.AssociationRules"
-    logger.info(f"Writing results to {table_id}")
+    logger.info(f"Writing results to {table_id}, {len(result)} rules.")
 
     job = bq.load_table_from_dataframe(
         result,
         table_id,
         job_config=bigquery.LoadJobConfig(write_disposition="WRITE_APPEND"),
     )
-    job.result()
-    logger.info("Upload completed")
+
+    try:
+        job.result()
+        logger.info("Upload completed")
+    except Exception as e:
+        logger.error(f"Upload failed with error: {e}")
+        raise e
 
 
 if __name__ == "__main__":
