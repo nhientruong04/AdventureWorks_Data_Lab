@@ -1,6 +1,8 @@
 import argparse
+import math
 from google.cloud import bigquery
 from mlxtend.frequent_patterns import fpgrowth, association_rules
+import numpy as np
 from loguru import logger
 import pandas as pd
 from mlxtend.preprocessing import TransactionEncoder
@@ -28,10 +30,66 @@ def build_query(fact_table: str, territory_id: int, date_filter: int) -> str:
     return query
 
 
+def initialize_min_sup(transactions: list):
+    distinct_products = np.unique(np.concatenate(transactions))
+    one_hot_transactions = np.zeros((len(transactions), max(distinct_products)+1),
+                                    dtype=np.int8)
+    for ti, t in enumerate(transactions):
+        one_hot_transactions[ti, t] = 1
+
+    # source: https://www.jurnal.yoctobrain.org/index.php/ijodas/article/view/134
+    unique_product_num = len(distinct_products)
+    N_avg = np.sum(one_hot_transactions) / unique_product_num
+    max_sup = np.max(np.mean(one_hot_transactions, axis=0))
+    R = math.pow(2, unique_product_num) - 1
+    min_sup = max_sup * (1 - math.pow(1/math.sqrt(R), 1/N_avg))
+
+    return min_sup
+
+
 def hash_rule(row):
     ants = ', '.join(map(str, row["antecedents"]))
     cons = ', '.join(map(str, row["consequents"]))
     return hashlib.sha256((ants+cons).encode()).hexdigest()
+
+
+def mine_rules(basket, single_itemset_flag=True,
+               min_sup=0.02, max_rules=35):
+    logger.info(f"Running with parameters: min_sup={min_sup},\
+    max_rules={max_rules}, single-item set={single_itemset_flag}.")
+
+    while min_sup >= 0.01:
+        frequent_itemsets = fpgrowth(
+            basket, min_support=min_sup, use_colnames=True)
+        rules = association_rules(
+            frequent_itemsets, metric="confidence", min_threshold=0.65
+        )
+
+        result = rules.iloc[:, :7].copy()
+
+        # get only single item set
+        if single_itemset_flag:
+            single_condition = (
+                result["antecedents"].apply(len) == 1
+            ) & (
+                result["consequents"].apply(len) == 1
+            )
+            result = result[single_condition]
+
+        result = result.sort_values(by=["support", "lift"], ascending=[
+            False, False]).head(max_rules)
+
+        # ensure at least a total of 0.8*max_rules rules found
+        if len(result) > int(0.8*max_rules):
+            break
+        else:
+            logger.info(
+                f"Too few rules, need at least {int(0.8*max_rules)} \
+                rules, got {len(result)} instead. Lowering min_sup to {min_sup/2}"
+            )
+            min_sup /= 2
+
+    return result
 
 
 def main():
@@ -80,45 +138,14 @@ def main():
         logger.warning("No data returned for this territory_id. Exiting.")
         return
     else:
-        logger.info(f"Retrieved {len(df)} transactions")
+        logger.info(f"Retrieved {len(df)} transactions.")
 
-    # should discuss more about thresholds
-    min_sup = 0.05
-    if len(df) <= 1000:
-        min_sup = 0.15 - 0.02 * int(len(df)/250)
-    elif len(df) < 2000:
-        min_sup = 0.025 - 0.0025 * int(len(df)/1000)
-    else:
-        min_sup = 0.02
-
+    # Run algorithm iteratively with multiple min_sup thresholds
     te = TransactionEncoder()
     te_ary = te.fit(df["products"]).transform(df["products"])
     basket = pd.DataFrame(te_ary, columns=te.columns_)
-
-    frequent_itemsets = fpgrowth(
-        basket, min_support=min_sup, use_colnames=True)
-    rules = association_rules(
-        frequent_itemsets, metric="confidence", min_threshold=0.7
-    )
-
-    if rules.empty:
-        logger.error("No association rules found for this territory_id. \
-            Try lower the min_sup or min_conf.")
-        return
-
-    result = rules.iloc[:, :7].copy()
-
-    # get only single item set
-    single_condition = (
-        result["antecedents"].apply(len) == 1
-    ) & (
-        result["consequents"].apply(len) == 1
-    )
-    result = result[single_condition]
-
-    if len(result) > 100:
-        result = result.sort_values(by=["support", "lift"], ascending=[
-                                    False, False]).head(100)
+    min_sup = initialize_min_sup(df["products"].to_list())
+    result = mine_rules(basket, min_sup=min_sup)
 
     result["territory_id"] = territory_id
     result["territory_id"] = result["territory_id"].astype("Int64")
