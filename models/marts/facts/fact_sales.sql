@@ -10,5 +10,5 @@ SELECT
     {{ convert_datekey('OrderDate') }} as OrderDateKey
 FROM {{ ref('int_sales__join') }}
 {% if is_incremental() %}
-    WHERE ModifiedDate > (SELECT MAX(ModifiedDate) FROM {{ this }})
+    WHERE {{ convert_datekey('ModifiedDate') }} >= (SELECT MAX(ModifiedDateKey) FROM {{ this }})
 {% endif %}
