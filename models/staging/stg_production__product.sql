@@ -5,4 +5,4 @@ SELECT
     CAST(Size as STRING) as ProductSize,
     CAST(ProductSubCategoryID as INT) ProductSubCategoryID,
     CAST(ProductModelID as INT) ProductModelID
-FROM Production.Product
+FROM {{ source("Production", "Product") }}

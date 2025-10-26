@@ -53,3 +53,5 @@ sources:
               arguments:
                 to: source('Production', 'ProductCategory')
                 field: ProductCategoryID
+      - name: ProductModel
+      - name: ProductCategory

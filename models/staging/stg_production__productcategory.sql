@@ -2,4 +2,4 @@
 SELECT
     CAST(ProductCategoryID as INT) as ProductCategoryID,
     CAST(Name as STRING) as Category
-FROM Production.ProductCategory
+FROM {{ source("Production", "ProductCategory") }}
