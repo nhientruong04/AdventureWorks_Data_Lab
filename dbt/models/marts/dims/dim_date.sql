@@ -1,4 +1,4 @@
-WITH date_spine as (
+WITH date_spine AS (
 
     {{ dbt_utils.date_spine(
         datepart="day",
@@ -8,20 +8,21 @@ WITH date_spine as (
 
 ),
 
-final as (
+final AS (
     SELECT
-        CAST(format_date('%Y%m%d', date_day) as int64) as DateKey,
-        date_day as Date,
-        EXTRACT(year FROM date_day) as Year,
-        EXTRACT(quarter FROM date_day) as Quarter,
-        EXTRACT(month FROM date_day) as Month,
-        EXTRACT(week FROM date_day) as Week,
+        CAST(format_date('%Y%m%d', date_day) AS INT) AS DateKey,
+        date_day AS Date,
+        EXTRACT(day FROM date_day) AS Day,
+        EXTRACT(week FROM date_day) AS Week,
+        EXTRACT(month FROM date_day) AS Month,
+        EXTRACT(quarter FROM date_day) AS Quarter,
         CASE
             WHEN EXTRACT(month FROM date_day) IN (12, 1, 2) THEN 'Winter'
             WHEN EXTRACT(month FROM date_day) IN (3, 4, 5) THEN 'Spring'
             WHEN EXTRACT(month FROM date_day) IN (6, 7, 8) THEN 'Summer'
             ELSE 'Autumn'
-        END as Season
+        END AS Season,
+        EXTRACT(year FROM date_day) AS Year
     FROM date_spine
 )
 
