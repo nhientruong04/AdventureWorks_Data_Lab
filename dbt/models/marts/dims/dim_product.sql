@@ -1,5 +1,15 @@
 SELECT
-    ROW_NUMBER() OVER (ORDER BY ProductID, valid_from) AS ProductKey,
+    {{ dbt_utils.generate_surrogate_key([
+            'ProductID',
+            'Name',
+            'Size',
+            'Color',
+            'ProductModelSnapshot__Name',
+            'ProductCategorySnapshot__Name',
+            'ProductSubcategorySnapshot__Name',
+            'DiscontinuedDate'
+        ])
+    }} AS ProductKey,
     CAST(ProductID AS INT) AS ProductID,
     CAST(Name AS STRING) AS Name,
     CAST(`Size` AS STRING) AS ProductSize,
