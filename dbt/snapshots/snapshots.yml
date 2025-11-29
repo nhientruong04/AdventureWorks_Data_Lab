@@ -1,0 +1,17 @@
+snapshots:
+  - name: ProductSnapshot
+    relation: ref("dedupe_production__product")
+    config:
+      unique_key: ProductID
+  - name: ProductModelSnapshot
+    relation: ref("dedupe_production__productmodel")
+    config:
+      unique_key: ProductModelID
+  - name: ProductCategorySnapshot
+    relation: ref("dedupe_production__productcategory")
+    config:
+      unique_key: ProductCategoryID
+  - name: ProductSubcategorySnapshot
+    relation: ref("dedupe_production__productsubcategory")
+    config:
+      unique_key: ProductSubcategoryID
