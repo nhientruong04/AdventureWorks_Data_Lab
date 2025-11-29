@@ -1,9 +1,17 @@
 SELECT
-    prod.ProductID,
-    prod.ProductName,
-    prod.ProductModel,
-    prod.ProductSize,
-    prod.Color,
-    prod.Category,
-    prod.SubCategory
-FROM {{ ref('int_production__join') }} as prod
+    ROW_NUMBER() OVER (ORDER BY ProductID, valid_from) AS ProductKey,
+    CAST(ProductID AS INT) AS ProductID,
+    CAST(Name AS STRING) AS Name,
+    CAST(`Size` AS STRING) AS ProductSize,
+    CAST(Color as STRING) as Color,
+    CAST(ProductModelSnapshot__Name AS STRING) AS Model,
+    CAST(ProductCategorySnapshot__Name AS STRING) AS Category,
+    CAST(ProductSubcategorySnapshot__Name AS STRING) AS Subcategory,
+    CAST(DiscontinuedDate AS DATETIME) AS DiscontinuedDate,
+    valid_from AS ValidFrom,
+    valid_to AS ValidTo,
+    CASE
+        WHEN CAST("{{ var('future-date') }}" AS DATETIME) = valid_to THEN 1
+        ELSE 0
+    END AS IsCurrentFlag
+FROM {{ ref('stg_snapshot__product') }}
