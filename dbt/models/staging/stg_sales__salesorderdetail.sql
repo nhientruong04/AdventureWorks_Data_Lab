@@ -2,7 +2,7 @@ WITH converted as (
     SELECT
         CAST(SalesOrderID as INT) as SalesOrderID,
         CAST(ProductID as INT) as ProductID,
-        CAST(ModifiedDate as DATE) as ModifiedDate,
+        CAST(ModifiedDate as DATETIME) as ModifiedDate,
         ABS(CAST(OrderQty as INT)) as OrderQty,
         ABS(CAST(UnitPrice as FLOAT64)) as UnitPrice,
         ABS(CAST(LineTotal as FLOAT64)) as LineTotal

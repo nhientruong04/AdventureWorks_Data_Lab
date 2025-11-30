@@ -1,6 +1,9 @@
 SELECT
-    CAST(SalesOrderID as INT) as SalesOrderID,
-    CAST(OrderDate as DATE) as OrderDate,
-    CAST(OnlineOrderFlag as INT) as OnlineOrderFlag,
-    CAST(TerritoryID as INT) as TerritoryID
+    CAST(SalesOrderID AS INT) AS SalesOrderID,
+    CAST(OrderDate AS DATETIME) AS OrderDate,
+    CAST(OnlineOrderFlag AS INT) AS OnlineOrderFlag,
+    CASE
+        WHEN TerritoryID IS NULL THEN 0
+        ELSE CAST(TerritoryID AS INT)
+    END AS TerritoryID
 FROM {{ source("Sales", "SalesOrderHeader") }}
