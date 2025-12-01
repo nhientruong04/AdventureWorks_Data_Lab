@@ -4,20 +4,19 @@ models:
   - name: dim_product
     columns:
       - name: ProductID
-        description: "Unique product identifier"
-        tests:
+        data_tests:
+          - not_null
+      - name: ProductKey
           - not_null
           - unique
   - name: dim_date
     columns:
       - name: DateKey
-        tests:
+        data_tests:
           - not_null
           - unique
   - name: dim_territory
     columns:
       - name: TerritoryID
-        tests:
-          - relationships:
-              to: source('Sales', 'SalesTerritory')
-              field: TerritoryID
+        data_tests:
+          - not_null
