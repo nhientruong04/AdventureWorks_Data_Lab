@@ -2,30 +2,49 @@ version: 2
 
 models:
   - name: fact_sales
-    tests:
-      - not_null:
-          column_name: UnitPrice
-      - not_null:
-          column_name: OrderQty
-      - not_null:
-          column_name: LineTotal
-      - dbt_utils.accepted_range:
-          column_name: UnitPrice
-          arguments:
-            min_value: 0
-            inclusive: true
-      - dbt_utils.accepted_range:
-          column_name: OrderQty
-          arguments:
-            min_value: 1
-            inclusive: true
-      - dbt_utils.accepted_range:
-          column_name: LineTotal
-          arguments:
-            min_value: 0
-            inclusive: true
-      - relationships:
-          column_name: OrderDateKey
-          arguments:
-            to: ref('dim_date')
-            field: DateKey
+    columns:
+      - name: UnitPrice
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              config:
+                tags: ['value']
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: OrderQty
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              config:
+                tags: ['value']
+              arguments:
+                min_value: 1
+                inclusive: true
+      - name: LineTotal
+        data_tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              config:
+                tags: ['value']
+              arguments:
+                min_value: 0
+                inclusive: true
+      - name: OrderDateKey
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: DateKey
+      - name: ProductKey
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_product')
+                field: ProductKey
+      - name: TerritoryKey
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_territory')
+                field: TerritoryKey
