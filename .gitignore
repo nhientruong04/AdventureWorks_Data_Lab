@@ -3,3 +3,7 @@ target/
 dbt_packages/
 logs/
 package-lock.yml
+
+terraform/*.tfvars
+terraform/*tfstate*
+terraform/.terraform*
