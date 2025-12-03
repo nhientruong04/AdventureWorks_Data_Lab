@@ -8,7 +8,8 @@ terraform {
 }
 
 locals {
-  ssh_key_file = trimspace(file(var.ssh_key_path))
+  ssh_key_file      = trimspace(file(var.ssh_key_path))
+  db_startup_script = file("${path.module}/scripts/database-startup.sh")
 }
 
 resource "google_compute_network" "vpc_network" {
@@ -49,4 +50,6 @@ resource "google_compute_instance" "db_instance" {
   metadata = {
     ssh-keys = "nhien:${local.ssh_key_file}"
   }
+
+  metadata_startup_script = local.db_startup_script
 }

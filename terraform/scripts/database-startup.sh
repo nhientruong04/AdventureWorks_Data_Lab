@@ -1,0 +1,50 @@
+#!/bin/bash
+
+echo "Installing mssql-server..."
+curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
+curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
+curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/mssql-server-2022.list | sudo tee /etc/apt/sources.list.d/mssql-server-2022.list
+# Tweak to make it run on Ubuntu 24.04, found on https://learn.microsoft.com/en-us/answers/questions/1693491/how-to-install-sql-server-2022-on-ubuntu-server-24
+wget http://mirrors.kernel.org/ubuntu/pool/main/o/openldap/libldap-2.5-0_2.5.11+dfsg-1%7Eexp1ubuntu3_amd64.deb
+sudo dpkg -i libldap-2.5-0_2.5.11+dfsg-1~exp1ubuntu3_amd64.deb
+sudo apt-get update
+sudo apt-get install -y mssql-server
+echo "mssql-server installed."
+
+echo "Setting up SA accounts and first run..."
+export MSSQL_PID="Express"
+export MSSQL_SA_PASSWORD="Aq7#Dh9KNHyd22Nf4%"
+export ACCEPT_EULA="Y"
+export DEBIAN_FRONTEND=noninteractive
+sudo -E /opt/mssql/bin/mssql-conf -n setup accept-eula
+sudo systemctl start mssql-server
+echo "Account and server setup done."
+
+echo "Installing mssql-tools..."
+curl -sSL -O https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+# noninteractive setup for tools and auto-accept eula
+echo "mssql-tools mssql-tools/accept-eula select true" | sudo debconf-set-selections
+sudo apt-get update
+sudo ACCEPT_EULA=Y apt-get install -y mssql-tools18 unixodbc-dev
+echo "mssql-tools18 installed."
+
+echo "Loading AdventureWorks2022..."
+sudo mkdir -p /var/opt/mssql/backup
+sudo curl -L https://github.com/Microsoft/sql-server-samples/releases/download/adventureworks/AdventureWorks2022.bak -o /var/opt/mssql/backup/AdventureWorks2022.bak
+/opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P "$MSSQL_SA_PASSWORD" -C <<EOF
+USE [master];
+GO
+
+RESTORE DATABASE AdventureWorks2022
+FROM DISK = '/var/opt/mssql/backup/AdventureWorks2022.bak'
+WITH
+    MOVE 'AdventureWorks2022' TO '/var/opt/mssql/data/AdventureWorks2022_Data.mdf',
+    MOVE 'AdventureWorks2022_log' TO '/var/opt/mssql/data/AdventureWorks2022_log.ldf',
+    FILE = 1,
+    NOUNLOAD,
+    STATS = 5;
+GO
+EOF
+echo "Database loaded."
+echo "Done"
