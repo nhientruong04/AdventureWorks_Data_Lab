@@ -8,8 +8,9 @@ terraform {
 }
 
 locals {
-  ssh_key_file      = trimspace(file(var.ssh_key_path))
-  db_startup_script = file("${path.module}/scripts/database-startup.sh")
+  ssh_key_file                    = trimspace(file(var.ssh_key_path))
+  db_startup_script               = file("${path.module}/scripts/database-startup.sh")
+  service_instance_startup_script = file("${path.module}/scripts/service-node-startup.sh")
 }
 
 resource "google_compute_network" "vpc_network" {
@@ -44,6 +45,7 @@ resource "google_compute_firewall" "internet_outbound_rule" {
   destination_ranges = ["0.0.0.0/0"]
 }
 
+# NOTE: should be only service_node, this is for all instances currently
 resource "google_compute_firewall" "ssh_rule" {
   name        = "allow-ssh"
   description = "Allow SSH to service node via IAP."
@@ -53,7 +55,7 @@ resource "google_compute_firewall" "ssh_rule" {
     ports    = ["22"]
   }
   source_ranges      = ["35.235.240.0/20"]
-  destination_ranges = [google_compute_instance.service_instance.network_interface[0].network_ip]
+  destination_ranges = ["0.0.0.0/0"]
 }
 
 resource "google_compute_instance" "db_instance" {
@@ -83,11 +85,13 @@ resource "google_compute_instance" "db_instance" {
 resource "google_compute_instance" "service_instance" {
   name         = "service-instance"
   description  = "Instance for running Airflow and ELT pipeline"
-  machine_type = "e2-standard-2"
+  machine_type = "e2-standard-4"
 
   boot_disk {
     initialize_params {
       image = "ubuntu-os-cloud/ubuntu-2404-lts-amd64"
+      size  = 80
+      type  = "pd-balanced"
     }
   }
 
@@ -99,5 +103,6 @@ resource "google_compute_instance" "service_instance" {
     ssh-keys = "nhien:${local.ssh_key_file}"
   }
 
-  tags = ["service-instance"]
+  tags                    = ["service-instance"]
+  metadata_startup_script = local.service_instance_startup_script
 }
