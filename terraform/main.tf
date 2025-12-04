@@ -18,6 +18,32 @@ resource "google_compute_network" "vpc_network" {
   auto_create_subnetworks = true
 }
 
+resource "google_compute_router_nat" "public_nat" {
+  name                               = "public-nat"
+  source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+  router                             = google_compute_router.public_router.name
+  nat_ip_allocate_option             = "AUTO_ONLY"
+}
+
+resource "google_compute_router" "public_router" {
+  name        = "public-router"
+  description = "Router for public NAT."
+  network     = google_compute_network.vpc_network.id
+}
+
+resource "google_compute_firewall" "internet_outbound_rule" {
+  name        = "restrict-internet-outbound-rule"
+  description = "Allow Internet outbound traffic to HTTP/HTTPS only."
+  network     = google_compute_network.vpc_network.id
+  allow {
+    protocol = "tcp"
+    ports    = ["80", "443"]
+  }
+
+  source_ranges      = ["0.0.0.0/0"]
+  destination_ranges = ["0.0.0.0/0"]
+}
+
 resource "google_compute_firewall" "ssh_rule" {
   name        = "allow-ssh"
   description = "Allow SSH to service node via IAP."
