@@ -45,14 +45,27 @@ resource "google_compute_firewall" "internet_outbound_rule" {
   destination_ranges = ["0.0.0.0/0"]
 }
 
-# NOTE: should be only service_node, this is for all instances currently
+resource "google_compute_firewall" "db_inbound_rule" {
+  name        = "allow-inbound-db-port"
+  description = "Allow service-node to read database in 1433 port."
+  network     = google_compute_network.vpc_network.id
+  allow {
+    protocol = "tcp"
+    ports    = ["1433"]
+  }
+
+  source_ranges      = [google_compute_instance.service_instance.network_interface[0].network_ip]
+  destination_ranges = [google_compute_instance.db_instance.network_interface[0].network_ip]
+}
+
+# NOTE: should be only service_instance, this is for all instances currently
 resource "google_compute_firewall" "ssh_rule" {
   name        = "allow-ssh"
   description = "Allow SSH to service node via IAP."
   network     = google_compute_network.vpc_network.id
   allow {
     protocol = "tcp"
-    ports    = ["22"]
+    ports    = ["22", "8000"]
   }
   source_ranges      = ["35.235.240.0/20"]
   destination_ranges = ["0.0.0.0/0"]
