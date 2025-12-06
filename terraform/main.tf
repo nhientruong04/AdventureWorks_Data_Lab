@@ -13,6 +13,23 @@ locals {
   service_instance_startup_script = file("${path.module}/scripts/service-node-startup.sh")
 }
 
+resource "google_service_account" "airbyte_account" {
+  account_id  = "airbyte-adventureworks2022"
+  description = "Service account for Airbyte process in the service instance."
+}
+
+resource "google_project_iam_binding" "bigquery_data_editor_role" {
+  project = var.project
+  role    = "roles/bigquery.dataEditor"
+  members = ["serviceAccount:${google_service_account.airbyte_account.email}"]
+}
+
+resource "google_project_iam_binding" "bigquery_data_user_role" {
+  project = var.project
+  role    = "roles/bigquery.user"
+  members = ["serviceAccount:${google_service_account.airbyte_account.email}"]
+}
+
 resource "google_compute_network" "vpc_network" {
   name                    = "general-network"
   description             = "Network for all elements for illustration."
