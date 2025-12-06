@@ -13,21 +13,51 @@ locals {
   service_instance_startup_script = file("${path.module}/scripts/service-node-startup.sh")
 }
 
-resource "google_service_account" "airbyte_account" {
-  account_id  = "airbyte-adventureworks2022"
-  description = "Service account for Airbyte process in the service instance."
+resource "google_service_account" "service_instance_account" {
+  account_id  = "service-vm-instance"
+  description = "Service account for all necessary processes in the service instance."
 }
 
 resource "google_project_iam_binding" "bigquery_data_editor_role" {
   project = var.project
   role    = "roles/bigquery.dataEditor"
-  members = ["serviceAccount:${google_service_account.airbyte_account.email}"]
+  members = ["serviceAccount:${google_service_account.service_instance_account.email}"]
 }
 
 resource "google_project_iam_binding" "bigquery_data_user_role" {
   project = var.project
   role    = "roles/bigquery.user"
-  members = ["serviceAccount:${google_service_account.airbyte_account.email}"]
+  members = ["serviceAccount:${google_service_account.service_instance_account.email}"]
+}
+
+resource "google_project_iam_member" "gcs_object_user_role" {
+  project = var.project
+  role    = "roles/storage.objectUser"
+  member  = "serviceAccount:${google_service_account.service_instance_account.email}"
+}
+
+resource "google_project_iam_member" "gcs_bucket_view_role" {
+  project = var.project
+  role    = "roles/storage.bucketViewer"
+  member  = "serviceAccount:${google_service_account.service_instance_account.email}"
+}
+
+resource "google_project_iam_member" "dataproc_editor_role" {
+  project = var.project
+  role    = "roles/dataproc.editor"
+  member  = "serviceAccount:${google_service_account.service_instance_account.email}"
+}
+
+resource "google_project_iam_member" "logging_role" {
+  project = var.project
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.service_instance_account.email}"
+}
+
+resource "google_project_iam_member" "metric_writer_role" {
+  project = var.project
+  role    = "roles/monitoring.metricWriter"
+  member  = "serviceAccount:${google_service_account.service_instance_account.email}"
 }
 
 resource "google_compute_network" "vpc_network" {
@@ -113,9 +143,10 @@ resource "google_compute_instance" "db_instance" {
 }
 
 resource "google_compute_instance" "service_instance" {
-  name         = "service-instance"
-  description  = "Instance for running Airflow and ELT pipeline"
-  machine_type = "e2-standard-4"
+  name                      = "service-instance"
+  description               = "Instance for running Airflow and ELT pipeline"
+  machine_type              = "e2-standard-4"
+  allow_stopping_for_update = true
 
   boot_disk {
     initialize_params {
@@ -131,6 +162,11 @@ resource "google_compute_instance" "service_instance" {
 
   metadata = {
     ssh-keys = "nhien:${local.ssh_key_file}"
+  }
+
+  service_account {
+    email  = google_service_account.service_instance_account.email
+    scopes = ["cloud-platform"]
   }
 
   tags                    = ["service-instance"]
