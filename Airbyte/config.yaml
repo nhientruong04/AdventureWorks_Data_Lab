@@ -1,0 +1,8 @@
+base_url: "http://localhost:8000/api/public/v1"
+source:
+  port: 1433
+  database: "AdventureWorks2022"
+  username: "SA"
+  schemas:
+    - "Production"
+    - "Sales"
