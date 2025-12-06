@@ -136,3 +136,18 @@ resource "google_compute_instance" "service_instance" {
   tags                    = ["service-instance"]
   metadata_startup_script = local.service_instance_startup_script
 }
+
+resource "google_storage_bucket" "staging_bucket" {
+  name                     = "airbyte-adventureworks2022-staging-bucket"
+  location                 = var.region
+  force_destroy            = true
+  public_access_prevention = "enforced"
+  ip_filter {
+    mode                 = "Disabled" # terraform cannot get the state after changing to Enabled
+    allow_cross_org_vpcs = true
+    vpc_network_sources {
+      network                = "projects/${var.project}/global/networks/${google_compute_network.vpc_network.name}"
+      allowed_ip_cidr_ranges = ["0.0.0.0/0"]
+    }
+  }
+}
