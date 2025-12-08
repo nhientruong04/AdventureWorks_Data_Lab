@@ -173,6 +173,32 @@ resource "google_compute_instance" "service_instance" {
   metadata_startup_script = local.service_instance_startup_script
 }
 
+resource "google_storage_hmac_key" "gcs_hmacKey" {
+  service_account_email = google_service_account.service_instance_account.email
+  state                 = "ACTIVE"
+}
+
+resource "google_secret_manager_secret" "gcs_hmacKey_secret" {
+  replication {
+    auto {}
+  }
+
+  secret_id = "hmac_secret"
+}
+
+resource "google_secret_manager_secret_version" "gcs_hmacKey_version" {
+  secret      = google_secret_manager_secret.gcs_hmacKey_secret.id
+  secret_data = google_storage_hmac_key.gcs_hmacKey.secret
+}
+
+resource "google_secret_manager_secret_version" "gcs_hmacKey_full_version" {
+  secret = google_secret_manager_secret.gcs_hmacKey_secret.id
+  secret_data = jsonencode({
+    "access_id" : google_storage_hmac_key.gcs_hmacKey.access_id,
+    "key" : google_storage_hmac_key.gcs_hmacKey.secret
+  })
+}
+
 resource "google_storage_bucket" "staging_bucket" {
   name                     = "airbyte-adventureworks2022-staging-bucket"
   location                 = var.region

@@ -3,6 +3,7 @@ from loguru import logger
 import os
 import requests
 import json
+from google.cloud import secretmanager
 
 CONFIG_PATH = "config.yaml"
 assert os.path.exists(CONFIG_PATH)
@@ -15,6 +16,18 @@ USER_SECRET = config.get('AIRBYTE_USER_SECRET',
 DATABASE_IP = config.get('DATABASE_HOST_IP', os.environ['DATABASE_HOST_IP'])
 DATABASE_PASSWORD = config.get(
     'DATABASE_HOST_PASSWORD', os.environ['DATABASE_HOST_PASSWORD'])
+
+
+def access_secret(config: dict, secret_id: str) -> str:
+    BQ_PROJECT_ID = config.get('BQ_PROJECT_ID', os.environ['BQ_PROJECT_ID'])
+    client = secretmanager.SecretManagerServiceClient()
+
+    name = f"projects/{BQ_PROJECT_ID}/secrets/{secret_id}/versions/latest"
+
+    response = client.access_secret_version(request={"name": name})
+
+    secret_value = response['payload']['data']
+    return secret_value
 
 
 def get_access_token():
@@ -82,9 +95,10 @@ def get_or_create_source(config: dict, token: str, workspaceId: str):
 
     logger.info("No valid source found, constructing\
     new source to OLTP database...")
+    # TODO: hmac secret
 
     payload = {
-        "name": "mssql-oltp-database",
+        "name": source_config['name'],
         "workspaceId": workspaceId,
         "configuration": {
             "host": DATABASE_IP,
