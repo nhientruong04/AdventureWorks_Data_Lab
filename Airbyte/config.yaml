@@ -13,3 +13,5 @@ destination:
   name: "bigquery-warehouse"
   region: "us-central1"
   default_dataset_name: "AdventureWorks2022"
+  gcs_bucket: "airbyte-adventureworks2022-staging-bucket"
+  gcs_bucket_data_folder: "data_sync"

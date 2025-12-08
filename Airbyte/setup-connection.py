@@ -18,16 +18,13 @@ DATABASE_PASSWORD = config.get(
     'DATABASE_HOST_PASSWORD', os.environ['DATABASE_HOST_PASSWORD'])
 
 
-def access_secret(config: dict, secret_id: str) -> str:
-    BQ_PROJECT_ID = config.get('BQ_PROJECT_ID', os.environ['BQ_PROJECT_ID'])
+def get_access_secret(project_id: str, secret_id: str) -> str:
     client = secretmanager.SecretManagerServiceClient()
 
-    name = f"projects/{BQ_PROJECT_ID}/secrets/{secret_id}/versions/latest"
-
+    name = f"projects/{project_id}/secrets/{secret_id}/versions/latest"
     response = client.access_secret_version(request={"name": name})
 
-    secret_value = response['payload']['data']
-    return secret_value
+    return json.loads(response.payload.data)
 
 
 def get_access_token():
@@ -93,9 +90,8 @@ def get_or_create_source(config: dict, token: str, workspaceId: str):
         if valid_source is not None:
             return valid_source['sourceId']
 
-    logger.info("No valid source found, constructing\
-    new source to OLTP database...")
-    # TODO: hmac secret
+    logger.info("No valid source found, constructing "
+                "new source to OLTP database...")
 
     payload = {
         "name": source_config['name'],
@@ -105,7 +101,7 @@ def get_or_create_source(config: dict, token: str, workspaceId: str):
             "port": source_config['port'],
             "schemas": source_config['schemas'],
             "database": source_config['database'],
-            "username": source_config["username"],
+            "username": source_config['username'],
             "password": DATABASE_PASSWORD,
             "replication_method": {
                 "method": "STANDARD"
@@ -124,8 +120,8 @@ def get_or_create_source(config: dict, token: str, workspaceId: str):
     try:
         resp.raise_for_status()
     except requests.HTTPError as e:
-        logger.error("Encountered an error during request,\
-            raw error message is printed below.")
+        logger.error("Encountered an error during request, "
+                     "raw error message is printed below.")
         print(resp.text)
         raise e
 
@@ -133,8 +129,73 @@ def get_or_create_source(config: dict, token: str, workspaceId: str):
     return resp.json()['sourceId']
 
 
+def get_or_create_destination(config: dict, token: str, workspaceId: str):
+    project_id = config.get('BQ_PROJECT_ID', os.environ['BQ_PROJECT_ID'])
+    hmac_secret = get_access_secret(project_id, 'hmac_secret')
+    destination_config = config['destination']
+    url = f"{config['base_url']}/destinations"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+
+    logger.info("Checking existing destinations in workspace.")
+    # find constructed destinations first, return the first found BQ destination
+    resp = requests.get(url, headers=headers)
+    destinations = resp.json()['data']
+    if len(destinations) != 0:
+        valid_destination = None
+        for destination in destinations:
+            if destination['destinationType'] == "bigquery":
+                valid_destination = destination
+                break
+        if valid_destination is not None:
+            return valid_destination['destinationId']
+
+    logger.info("No valid destination found, constructing "
+                "new destination to BigQuery warehouse...")
+
+    payload = {
+        "name": destination_config['name'],
+        "workspaceId": workspaceId,
+        "configuration": {
+            "project_id": project_id,
+            "dataset_location": destination_config['region'],
+            "dataset_id": destination_config['default_dataset_name'],
+            "loading_method": {
+                "method": "GCS Staging",
+                "credential": {
+                    "credential_type": "HMAC_KEY",
+                    "hmac_key_access_id": hmac_secret['access_id'],
+                    "hmac_key_secret": hmac_secret['key']
+                },
+                "gcs_bucket_name": destination_config['gcs_bucket'],
+                "gcs_bucket_path": destination_config['gcs_bucket_data_folder']
+            },
+            "destinationType": "bigquery"
+        }
+    }
+
+    resp = requests.post(url, headers=headers, data=json.dumps(payload))
+    try:
+        resp.raise_for_status()
+    except requests.HTTPError as e:
+        logger.error("Encountered an error during request, "
+                     "raw error message is printed below.")
+        print(resp.text)
+        raise e
+
+    logger.info("Destination configured.")
+    return resp.json()['destinationId']
+
+
 if __name__ == "__main__":
-    workspaceId = get_or_create_workspace(config, get_access_token())
+    workspaceId = config['airbyte'].\
+        get('workspaceId', get_or_create_workspace(config, get_access_token()))
     logger.info(f"Using workspaceId: {workspaceId}")
-    sourceId = get_or_create_source(config, get_access_token(), workspaceId)
-    print(sourceId)
+    # sourceId = get_or_create_source(config, get_access_token(), workspaceId)
+    # print(sourceId)
+    destinationID = get_or_create_destination(config, get_access_token(),
+                                              workspaceId)
+    print(destinationID)
