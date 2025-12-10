@@ -15,3 +15,34 @@ destination:
   default_dataset_name: "AdventureWorks2022"
   gcs_bucket: "airbyte-adventureworks2022-staging-bucket"
   gcs_bucket_data_folder: "data_sync"
+connection:
+  name: "default-connection"
+  streams:
+    - name: Product
+      syncMode: incremental_deduped_history
+      cursorField:
+        - ModifiedDate
+    - name: ProductModel
+      syncMode: incremental_deduped_history
+      cursorField:
+        - ModifiedDate
+    - name: ProductCategory
+      syncMode: incremental_deduped_history
+      cursorField:
+        - ModifiedDate
+    - name: ProductSubcategory
+      syncMode: incremental_deduped_history
+      cursorField:
+        - ModifiedDate
+    - name: SalesOrderHeader
+      syncMode: incremental_deduped_history
+      cursorField:
+        - ModifiedDate
+    - name: SalesOrderDetail
+      syncMode: incremental_deduped_history
+      cursorField:
+        - ModifiedDate
+    - name: SalesTerritory
+      syncMode: incremental_deduped_history
+      cursorField:
+        - ModifiedDate

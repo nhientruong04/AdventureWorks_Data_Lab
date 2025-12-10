@@ -22,9 +22,9 @@ def get_access_secret(project_id: str, secret_id: str) -> str:
     client = secretmanager.SecretManagerServiceClient()
 
     name = f"projects/{project_id}/secrets/{secret_id}/versions/latest"
-    response = client.access_secret_version(request={"name": name})
+    resp = client.access_secret_version(request={"name": name})
 
-    return json.loads(response.payload.data)
+    return json.loads(resp.payload.data)
 
 
 def get_access_token():
@@ -190,12 +190,50 @@ def get_or_create_destination(config: dict, token: str, workspaceId: str):
     return resp.json()['destinationId']
 
 
+def create_connection(config: dict, token: str, sourceId: str,
+                      destinationId: str, workspaceId: str):
+    connection_config = config['connection']
+    url = f"{config['base_url']}/connections"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+
+    logger.info(f"Using source {sourceId}, destination {destinationId}")
+    logger.info("Constructing new connection...")
+
+    payload = {
+        "name": connection_config['name'],
+        "sourceId": sourceId,
+        "destinationId": destinationId,
+        "workspaceId": workspaceId,
+        "configurations": {
+            "streams": connection_config['streams']
+        },
+        "namespaceDefinition": "custom_format",
+        "namespaceFormat": "raw_${SOURCE_NAMESPACE}"
+    }
+
+    resp = requests.post(url, headers=headers, data=json.dumps(payload))
+    try:
+        resp.raise_for_status()
+    except requests.HTTPError as e:
+        logger.error("Encountered an error during request, "
+                     "raw error message is printed below.")
+        print(resp.text)
+        raise e
+
+    logger.info("Source configured.")
+    return resp.json()['sourceId']
+
+
 if __name__ == "__main__":
     workspaceId = config['airbyte'].\
         get('workspaceId', get_or_create_workspace(config, get_access_token()))
     logger.info(f"Using workspaceId: {workspaceId}")
-    # sourceId = get_or_create_source(config, get_access_token(), workspaceId)
-    # print(sourceId)
-    destinationID = get_or_create_destination(config, get_access_token(),
+    sourceId = get_or_create_source(config, get_access_token(), workspaceId)
+    destinationId = get_or_create_destination(config, get_access_token(),
                                               workspaceId)
-    print(destinationID)
+    connectionId = create_connection(config, get_access_token(), sourceId,
+                                     destinationId, workspaceId)
