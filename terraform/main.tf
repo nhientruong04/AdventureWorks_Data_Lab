@@ -199,6 +199,12 @@ resource "google_secret_manager_secret_version" "gcs_hmacKey_full_version" {
   })
 }
 
+resource "google_secret_manager_secret_iam_member" "gcs_hmacKey_access_rule" {
+  secret_id = google_secret_manager_secret.gcs_hmacKey_secret.id
+  member    = "user:${google_service_account.service_instance_account.email}"
+  role      = "roles/secretmanager.secretAccessor"
+}
+
 resource "google_storage_bucket" "staging_bucket" {
   name                     = "airbyte-adventureworks2022-staging-bucket"
   location                 = var.region
