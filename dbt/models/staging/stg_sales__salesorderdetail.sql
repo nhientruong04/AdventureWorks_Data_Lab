@@ -6,7 +6,7 @@ WITH converted as (
         ABS(CAST(OrderQty as INT)) as OrderQty,
         ABS(CAST(UnitPrice as FLOAT64)) as UnitPrice,
         ABS(CAST(LineTotal as FLOAT64)) as LineTotal
-    FROM {{ source("Sales", "SalesOrderDetail") }}
+    FROM {{ source("raw_Sales", "SalesOrderDetail") }}
 )
 
 SELECT *

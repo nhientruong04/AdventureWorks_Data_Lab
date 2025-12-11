@@ -6,4 +6,4 @@ SELECT
         WHEN TerritoryID IS NULL THEN 0
         ELSE CAST(TerritoryID AS INT)
     END AS TerritoryID
-FROM {{ source("Sales", "SalesOrderHeader") }}
+FROM {{ source("raw_Sales", "SalesOrderHeader") }}

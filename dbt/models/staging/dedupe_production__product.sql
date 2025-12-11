@@ -34,7 +34,7 @@ hashed AS (
                 'DiscontinuedDate'
             ]) }} AS grain_id,
         *
-    FROM {{ source("Production", "Product") }}
+    FROM {{ source("raw_Production", "Product") }}
 ),
 
 mark_real_diffs AS (

@@ -13,7 +13,7 @@ hashed AS (
                 'Name',
             ]) }} AS grain_id,
         *
-    FROM {{ source("Production", "ProductCategory") }}
+    FROM {{ source("raw_Production", "ProductCategory") }}
 ),
 
 mark_real_diffs AS (
