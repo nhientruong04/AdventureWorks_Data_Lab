@@ -16,12 +16,12 @@ sources:
           - relationships:
               column_name: SalesOrderID
               arguments:
-                to: source('Sales', 'SalesOrderHeader')
+                to: source('raw_Sales', 'SalesOrderHeader')
                 field: SalesOrderID
           - relationships:
               column_name: ProductID
               arguments:
-                to: source('Production', 'Product')
+                to: source('raw_Production', 'Product')
                 field: ProductID
       - name: SalesTerritory
         tests:
@@ -40,7 +40,7 @@ sources:
           - relationships:
               column_name: ProductSubCategoryID
               arguments:
-                to: source('Production', 'ProductSubcategory')
+                to: source('raw_Production', 'ProductSubcategory')
                 field: ProductSubCategoryID
       - name: ProductSubcategory
         tests:
@@ -51,7 +51,7 @@ sources:
           - relationships:
               column_name: ProductCategoryID
               arguments:
-                to: source('Production', 'ProductCategory')
+                to: source('raw_Production', 'ProductCategory')
                 field: ProductCategoryID
       - name: ProductModel
       - name: ProductCategory
