@@ -1,0 +1,11 @@
+AdventureWorks2022:
+  outputs:
+    prod:
+      type: bigquery
+      method: oauth
+      project: "{{ env_var('BQ_PROJECT_ID') }}"
+      location: "{{ env_var('BQ_PROJECT_REGION') }}"
+      dataset: prod
+      threads: 8
+      maximum_bytes_billed: 1000000000
+  target: prod

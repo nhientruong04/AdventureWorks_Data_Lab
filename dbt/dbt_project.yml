@@ -1,8 +1,8 @@
 
-name: 'final'
+name: 'AdventureWorks2022'
 version: '1.0.0'
 
-profile: 'final'
+profile: 'AdventureWorks2022'
 
 model-paths: ["models"]
 analysis-paths: ["analyses"]
@@ -19,7 +19,7 @@ vars:
   future-date: '9999-12-31 23:59:59'
 
 models:
-  final:
+  AdventureWorks2022:
     staging:
       +materialized: view
       +schema: staging
@@ -33,7 +33,7 @@ models:
         +materialized: incremental
 
 snapshots:
-  final:
+  AdventureWorks2022:
     +schema: snapshots
     +strategy: timestamp
     +updated_at: ModifiedDate
