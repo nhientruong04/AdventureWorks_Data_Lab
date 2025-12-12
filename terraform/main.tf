@@ -142,10 +142,6 @@ resource "google_compute_instance" "db_instance" {
     network = google_compute_network.vpc_network.id
   }
 
-  metadata = {
-    ssh-keys = "nhien:${local.ssh_key_file}"
-  }
-
   tags = ["db-instance"]
 
   metadata_startup_script = local.db_startup_script
@@ -170,7 +166,7 @@ resource "google_compute_instance" "service_instance" {
   }
 
   metadata = {
-    ssh-keys = "nhien:${local.ssh_key_file}"
+    ssh-keys = "ubuntu:${local.ssh_key_file}"
   }
 
   service_account {
