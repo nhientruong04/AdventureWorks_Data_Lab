@@ -4,8 +4,7 @@ set -euo pipefail
 
 # INFO: somehow 4 CPUs and 16GBs still not enough for Airbyte
 echo "=== Installing Airbyte ==="
-curl -LsfS https://get.airbyte.com | bash -
-su -l "$TARGET_USER" -c "abctl local install --low-resource-mode"
+su -l "$TARGET_USER" -c "curl -LsfS https://get.airbyte.com | bash - && abctl local install --low-resource-mode"
 echo "=== Airbyte installation completed ==="
 
 apt-get install -y \
