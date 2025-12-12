@@ -10,7 +10,10 @@ terraform {
 locals {
   ssh_key_file                    = trimspace(file(var.ssh_key_path))
   db_startup_script               = file("${path.module}/scripts/database-startup.sh")
-  service_instance_startup_script = file("${path.module}/scripts/service-node-startup.sh")
+  service_instance_startup_script = templatefile("${path.module}/scripts/service-node-startup.tftpl", {
+    project_id = var.project
+    project_region = var.region
+  })
 }
 
 resource "google_service_account" "service_instance_account" {
