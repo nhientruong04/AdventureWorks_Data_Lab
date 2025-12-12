@@ -63,6 +63,12 @@ resource "google_project_iam_member" "metric_writer_role" {
   member  = "serviceAccount:${google_service_account.service_instance_account.email}"
 }
 
+resource "google_secret_manager_secret_iam_member" "gcs_hmacKey_access_rule" {
+  secret_id = google_secret_manager_secret.gcs_hmacKey_secret.id
+  member    = "serviceAccount:${google_service_account.service_instance_account.email}"
+  role      = "roles/secretmanager.secretAccessor"
+}
+
 resource "google_compute_network" "vpc_network" {
   name                    = "general-network"
   description             = "Network for all elements for illustration."
@@ -200,12 +206,6 @@ resource "google_secret_manager_secret_version" "gcs_hmacKey_full_version" {
     "access_id" : google_storage_hmac_key.gcs_hmacKey.access_id,
     "key" : google_storage_hmac_key.gcs_hmacKey.secret
   })
-}
-
-resource "google_secret_manager_secret_iam_member" "gcs_hmacKey_access_rule" {
-  secret_id = google_secret_manager_secret.gcs_hmacKey_secret.id
-  member    = "user:${google_service_account.service_instance_account.email}"
-  role      = "roles/secretmanager.secretAccessor"
 }
 
 resource "google_storage_bucket" "staging_bucket" {
