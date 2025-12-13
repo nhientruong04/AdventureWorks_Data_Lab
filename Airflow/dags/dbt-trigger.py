@@ -15,5 +15,6 @@ with DAG(
         environment={
             "BQ_PROJECT_ID": Variable.get("bq_project_id"),
             "BQ_PROJECT_REGION": Variable.get("bq_project_region"),
-        }
+        },
+        mount_tmp_dir=False
     )
