@@ -11,4 +11,13 @@ RUN apt-get update && apt-get install -y apt-transport-https ca-certificates gnu
     apt-get update && apt-get install -y google-cloud-cli && \
     rm -rf /var/lib/apt/lists/*
 
+# install dbt
+RUN apt-get update && apt-get install -y python3-venv
+
+RUN python3 -m venv /opt/venvs/dbt-env
+RUN /opt/venvs/dbt-env/bin/pip install --upgrade pip \
+    && /opt/venvs/dbt-env/bin/pip install dbt-core dbt-bigquery
+
+RUN chown -R airflow:root /opt/venvs
+
 USER airflow
