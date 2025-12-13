@@ -13,6 +13,7 @@ with DAG(
         bash_command="""
         source /opt/venvs/dbt-env/bin/activate
         cd /opt/dbt
+        dbt deps
         dbt run --profiles-dir /opt/dbt --select stg_sales__salesorderheader
         """,
         env={
