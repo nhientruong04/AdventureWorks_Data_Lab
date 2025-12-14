@@ -73,6 +73,7 @@ x-airflow-common:
     AIRFLOW_VAR_AIRBYTE_USER_SECRET: ${AIRBYTE_USER_SECRET:?Airbyte application user secret must be present in .env or the machine environment.}
   volumes:
     - ${DBT_SOURCE_DIR:-../dbt}:/opt/dbt
+    - ${AIRBYTE_DIR:-../Airbyte}:/opt/Airbyte
     # Use when not using on VM instance
     # - ~/.config/gcloud:/home/airflow/.config/gcloud:ro
     - "/var/run/docker.sock:/var/run/docker.sock"
