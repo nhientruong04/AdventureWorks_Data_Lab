@@ -22,7 +22,6 @@ pip install -r requirements.txt
 
 cd ~/AdventureWorks_source/Airflow
 echo -e "AIRFLOW_UID=$(id -u $TARGET_USER)" > .env
-docker compose up -d
 EOF
 echo "=== Setup completed ==="
 
