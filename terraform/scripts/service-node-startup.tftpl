@@ -6,8 +6,13 @@ export TARGET_USER="ubuntu"
 export DEBIAN_FRONTEND=noninteractive
 export PROJECT_ID=${project_id}
 export PROJECT_REGION=${project_region}
+export DATABASE_HOST_IP=${db_instance_ip}
+export DATABASE_PASSWORD=${db_password}
 echo "export BQ_PROJECT_ID=$PROJECT_ID" >>/home/$TARGET_USER/.profile
 echo "export BQ_PROJECT_REGION=$PROJECT_REGION" >>/home/$TARGET_USER/.profile
+echo "export DATABASE_HOST_IP=$DATABASE_HOST_IP" >>/home/$TARGET_USER/.profile
+echo "export DATABASE_PASSWORD=$DATABASE_PASSWORD" >>/home/$TARGET_USER/.profile
+
 chown $TARGET_USER:$TARGET_USER /home/$TARGET_USER/.profile
 
 echo "=== Installing Docker Engine ==="

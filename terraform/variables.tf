@@ -13,3 +13,7 @@ variable "region" {
 variable "zone" {
   type = string
 }
+
+variable "db_password" {
+  type = string
+}

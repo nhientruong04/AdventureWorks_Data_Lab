@@ -8,11 +8,15 @@ terraform {
 }
 
 locals {
-  ssh_key_file                    = trimspace(file(var.ssh_key_path))
-  db_startup_script               = file("${path.module}/scripts/database-startup.sh")
+  ssh_key_file = trimspace(file(var.ssh_key_path))
+  db_startup_script = templatefile("${path.module}/scripts/database-startup.tftpl", {
+    db_password = var.db_password
+  })
   service_instance_startup_script = templatefile("${path.module}/scripts/service-node-startup.tftpl", {
-    project_id = var.project
+    project_id     = var.project
     project_region = var.region
+    db_instance_ip = google_compute_instance.db_instance.network_interface[0].network_ip
+    db_password    = var.db_password
   })
 }
 

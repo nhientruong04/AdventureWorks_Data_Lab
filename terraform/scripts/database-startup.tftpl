@@ -13,7 +13,7 @@ echo "mssql-server installed."
 
 echo "Setting up SA accounts and first run..."
 export MSSQL_PID="Express"
-export MSSQL_SA_PASSWORD="Aq7#Dh9KNHyd22Nf4%"
+export MSSQL_SA_PASSWORD=${db_password}
 export ACCEPT_EULA="Y"
 export DEBIAN_FRONTEND=noninteractive
 sudo -E /opt/mssql/bin/mssql-conf -n setup accept-eula
