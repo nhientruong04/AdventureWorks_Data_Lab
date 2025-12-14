@@ -65,7 +65,6 @@ x-airflow-common:
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
     # The following line can be used to set a custom config file, stored in the local config folder
     AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
-    GOOGLE_APPLICATION_CREDENTIALS: '/keys/airflow-argon-triode-474919-k7-bd04c757d9ee.json'
     AIRFLOW_VAR_BQ_PROJECT_ID: ${BQ_PROJECT_ID}
     AIRFLOW_VAR_BQ_PROJECT_REGION: ${BQ_PROJECT_REGION}
   volumes:
@@ -77,7 +76,6 @@ x-airflow-common:
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
     - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
-    - ${AIRFLOW_PROJ_DIR:-.}/keys:/keys:ro
   user: "${AIRFLOW_UID:-50000}:0"
   group_add:
     - "${DOCKER_GID:-999}"
