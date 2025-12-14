@@ -69,6 +69,8 @@ x-airflow-common:
     AIRFLOW_VAR_BQ_PROJECT_REGION: ${BQ_PROJECT_REGION}
     AIRFLOW_VAR_DATABASE_HOST_IP: ${DATABASE_HOST_IP}
     AIRFLOW_VAR_DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+    AIRFLOW_VAR_AIRBYTE_USER_ID: ${AIRBYTE_USER_ID:?Airbyte application user ID must be present in .env or the machine environment.}
+    AIRFLOW_VAR_AIRBYTE_USER_SECRET: ${AIRBYTE_USER_SECRET:?Airbyte application user secret must be present in .env or the machine environment.}
   volumes:
     - ${DBT_SOURCE_DIR:-../dbt}:/opt/dbt
     # Use when not using on VM instance
