@@ -1,5 +1,5 @@
-base_url: "http://localhost:8000/api/public/v1"
 airbyte:
+  port: 8000
 source:
   name: "mssql-oltp-database"
   port: 1433
