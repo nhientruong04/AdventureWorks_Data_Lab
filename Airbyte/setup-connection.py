@@ -15,7 +15,10 @@ USER_SECRET = config.get('AIRBYTE_USER_SECRET',
                          os.environ['AIRBYTE_USER_SECRET'])
 DATABASE_IP = config.get('DATABASE_HOST_IP', os.environ['DATABASE_HOST_IP'])
 DATABASE_PASSWORD = config.get(
-    'DATABASE_HOST_PASSWORD', os.environ['DATABASE_HOST_PASSWORD'])
+    'DATABASE_PASSWORD', os.environ['DATABASE_PASSWORD'])
+BQ_PROJECT_ID = config.get('BQ_PROJECT_ID', os.environ['BQ_PROJECT_ID'])
+BQ_PROJECT_REGION = config.get('BQ_PROJECT_REGION',
+                               os.environ['BQ_PROJECT_REGION'])
 
 
 def get_access_secret(project_id: str, secret_id: str) -> str:
@@ -130,8 +133,7 @@ def get_or_create_source(config: dict, token: str, workspaceId: str):
 
 
 def get_or_create_destination(config: dict, token: str, workspaceId: str):
-    project_id = config.get('BQ_PROJECT_ID', os.environ['BQ_PROJECT_ID'])
-    hmac_secret = get_access_secret(project_id, 'hmac_secret')
+    hmac_secret = get_access_secret(BQ_PROJECT_ID, 'hmac_secret')
     destination_config = config['destination']
     url = f"{config['base_url']}/destinations"
     headers = {
@@ -160,8 +162,8 @@ def get_or_create_destination(config: dict, token: str, workspaceId: str):
         "name": destination_config['name'],
         "workspaceId": workspaceId,
         "configuration": {
-            "project_id": project_id,
-            "dataset_location": destination_config['region'],
+            "project_id": BQ_PROJECT_ID,
+            "dataset_location": BQ_PROJECT_REGION,
             "dataset_id": destination_config['default_dataset_name'],
             "loading_method": {
                 "method": "GCS Staging",

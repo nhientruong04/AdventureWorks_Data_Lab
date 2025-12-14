@@ -67,6 +67,8 @@ x-airflow-common:
     AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
     AIRFLOW_VAR_BQ_PROJECT_ID: ${BQ_PROJECT_ID}
     AIRFLOW_VAR_BQ_PROJECT_REGION: ${BQ_PROJECT_REGION}
+    AIRFLOW_VAR_DATABASE_HOST_IP: ${DATABASE_HOST_IP}
+    AIRFLOW_VAR_DATABASE_PASSWORD: ${DATABASE_PASSWORD}
   volumes:
     - ${DBT_SOURCE_DIR:-../dbt}:/opt/dbt
     # Use when not using on VM instance

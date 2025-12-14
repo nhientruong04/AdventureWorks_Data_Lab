@@ -1,6 +1,5 @@
 base_url: "http://localhost:8000/api/public/v1"
 airbyte:
-  workspaceId: 849fbe0e-9e6c-455a-8c4e-b3043dac761f
 source:
   name: "mssql-oltp-database"
   port: 1433
@@ -11,7 +10,6 @@ source:
     - "Sales"
 destination:
   name: "bigquery-warehouse"
-  region: "us-central1"
   default_dataset_name: "AdventureWorks2022"
   gcs_bucket: "airbyte-adventureworks2022-staging-bucket"
   gcs_bucket_data_folder: "data_sync"
